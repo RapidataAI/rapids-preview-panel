@@ -1,4 +1,4 @@
-FROM grafana/grafana:latest
+FROM docker.io/grafana/grafana:12.3.0-18733571275
 
 # Set as root user to copy files and set permissions
 USER root

@@ -21,7 +21,7 @@ jobs:
   build-arch:
     strategy:
       matrix:
-        platform: [amd64, arm64]
+        platform: [amd64]
         include:
           - platform: amd64
             runner: blacksmith-8vcpu-ubuntu-2204

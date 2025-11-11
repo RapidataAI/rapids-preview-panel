@@ -12,7 +12,7 @@ env:
   GHCR_REGISTRY: ghcr.io
   REGION: europe-west4
   GHCR_IMAGE: ghcr.io/rapidataai/rapids-preview-panel
-  GAR_IMAGE: europe-west4-docker.pkg.dev/${{ secrets.GCP_COMMON_PROJECT_ID }}/rapidata-internal/${{ github.repository }}
+  GAR_IMAGE: europe-west4-docker.pkg.dev/${{ secrets.GCP_COMMON_PROJECT_ID }}/rapidata-internal/rapidataai/rapids-preview-panel
 
 permissions:
   contents: read

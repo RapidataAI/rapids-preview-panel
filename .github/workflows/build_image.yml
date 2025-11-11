@@ -27,10 +27,6 @@ jobs:
             runner: blacksmith-8vcpu-ubuntu-2204
             docker_platform: linux/amd64
             suffix: amd64
-          - platform: arm64
-            runner: blacksmith-8vcpu-ubuntu-2204-arm
-            docker_platform: linux/arm64
-            suffix: arm64
     runs-on: ${{ matrix.runner }}
     environment: ${{ inputs.environment }}
     permissions:
@@ -123,13 +119,11 @@ jobs:
           GAR_IMAGE_LOWER=$(echo "${{ env.GAR_IMAGE }}" | tr '[:upper:]' '[:lower:]')
           docker buildx imagetools create \
             --tag "${GAR_IMAGE_LOWER}:latest" \
-            "${GAR_IMAGE_LOWER}:latest-amd64" \
-            "${GAR_IMAGE_LOWER}:latest-arm64"
+            "${GAR_IMAGE_LOWER}:latest-amd64"
 
       - name: Create GHCR multi-arch manifest
         run: |
           GHCR_IMAGE_LOWER=$(echo "${{ env.GHCR_IMAGE }}" | tr '[:upper:]' '[:lower:]')
           docker buildx imagetools create \
             --tag "${GHCR_IMAGE_LOWER}:latest" \
-            "${GHCR_IMAGE_LOWER}:latest-amd64" \
-            "${GHCR_IMAGE_LOWER}:latest-arm64"
+            "${GHCR_IMAGE_LOWER}:latest-amd64"

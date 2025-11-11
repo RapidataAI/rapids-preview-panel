@@ -39,7 +39,7 @@ jobs:
 
       # Workaround: https://github.com/docker/build-push-action/issues/461
       - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@79abd3f86f79a9d68a23c75a09a9a85889262adf
+        uses: docker/setup-buildx-action@v3
 
       # Login against a Docker registry except on PR
       # https://github.com/docker/login-action
@@ -96,18 +96,20 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      # Create GAR multi-arch manifest
       - name: Create GAR multi-arch manifest
         if: github.event_name != 'pull_request'
         run: |
-          IMAGE_NAME=$(echo "${{ env.GAR_LOCATION }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
-          IMAGES=""
-          if docker buildx imagetools inspect "${IMAGE_NAME}:main-amd64" >/dev/null 2>&1; then
-            IMAGES="${IMAGES} ${IMAGE_NAME}:main-amd64"
-          fi
-          if docker buildx imagetools inspect "${IMAGE_NAME}:main-arm64" >/dev/null 2>&1; then
-            IMAGES="${IMAGES} ${IMAGE_NAME}:main-arm64"
-          fi
-          if [ -n "$IMAGES" ]; then
-            docker buildx imagetools create --tag "${IMAGE_NAME}:main" $IMAGES
-          fi
+          GAR_IMAGE=$(echo "${{ env.GAR_LOCATION }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+          docker buildx imagetools create \
+            --tag "${GAR_IMAGE}:latest" \
+            "${GAR_IMAGE}:latest-amd64" \
+            "${GAR_IMAGE}:latest-arm64"
+
+      - name: Create GHCR multi-arch manifest
+        if: github.event_name != 'pull_request'
+        run: |
+          GHCR_IMAGE=$(echo "${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')
+          docker buildx imagetools create \
+            --tag "${GHCR_IMAGE}:latest" \
+            "${GHCR_IMAGE}:latest-amd64" \
+            "${GHCR_IMAGE}:latest-arm64"

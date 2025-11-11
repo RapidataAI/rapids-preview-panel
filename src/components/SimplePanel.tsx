@@ -55,17 +55,27 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
     return <PanelDataErrorView fieldConfig={fieldConfig} panelId={id} data={data} needsStringField />;
   }
 
-  const [xPoints, yPoints, weightPoints] = data.series[0].fields;
+  console.log('data', data.series);
+
+  const [pointsSeries, rapidsSeries] = data.series;
+
+  if (rapidsSeries?.fields[0].values.length === 0) {
+    return <PanelDataErrorView fieldConfig={fieldConfig} panelId={id} data={data} suggestions={[]} />;
+  }
+
+  const [xPoints, yPoints] = pointsSeries.fields;
 
   const yScale = scaleLinear().domain([0, 100]).range([0, _height]);
   const xScale = scaleLinear().domain([0, 100]).range([0, _width]);
 
+  const rapidsAmount = rapidsSeries.fields[0].values.length;
+  const randomRapidId = rapidsSeries.fields[0].values[Math.floor(Math.random() * rapidsAmount)];
+
   const p = xPoints.values.map((x, i) => {
     return {
-      x: Math.random() * 100,
-      // x: x as number,
+      x: x as number,
       y: yPoints.values[i] as number,
-      weight: weightPoints ? (weightPoints.values[i] as number) : undefined,
+      weight: 1,
     };
   });
   console.log('points', p);
@@ -74,7 +84,6 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
     x: number;
     y: number;
     weight?: number;
-    userScore?: number;
   }>()
     .x((d) => xScale(d.x))
     .y((d) => yScale(d.y))
@@ -120,10 +129,8 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
         </svg>
 
         <iframe
-          // Info: we use the url as key, so we avoid adding a history item to the window, so we are destroying and re-creating a new iframe each time the
-          // src changes
           className={styles.iframe}
-          src="https://rapids.rapidata.ai/preview/rapid?id=66d5ace7aa25975c5ec1c405"
+          src={`https://rapids.rapidata.ai/preview/rapid?id=${randomRapidId}`}
           onLoad={(e) => {
             if ('contentWindow' in e.target) {
               (e.target.contentWindow as Window).postMessage(

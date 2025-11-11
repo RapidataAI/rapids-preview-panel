@@ -7,7 +7,6 @@ USER root
 COPY dist /var/lib/grafana/plugins/rapidata-rapidspreview-panel
 
 # Set proper permissions
-RUN chown -R grafana:grafana /var/lib/grafana/plugins/rapidata-rapidspreview-panel
 
 # Allow the unsigned plugin to load
 ENV GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=rapidata-rapidspreview-panel

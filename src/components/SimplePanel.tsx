@@ -55,14 +55,20 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
     return <PanelDataErrorView fieldConfig={fieldConfig} panelId={id} data={data} needsStringField />;
   }
 
-  console.log('data', data.series);
-
+  /**
+   * It is assumed that the query will return two series in this order:
+   * 1. Points series with x and y fields
+   * 2. Rapids series with rapid ids
+   */
   const [pointsSeries, rapidsSeries] = data.series;
 
   if (rapidsSeries?.fields[0].values.length === 0) {
     return <PanelDataErrorView fieldConfig={fieldConfig} panelId={id} data={data} suggestions={[]} />;
   }
 
+  /**
+   * It is assumed that the query will return x and y in this order
+   */
   const [xPoints, yPoints] = pointsSeries.fields;
 
   const yScale = scaleLinear().domain([0, 100]).range([0, _height]);
@@ -78,7 +84,6 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
       weight: 1,
     };
   });
-  console.log('points', p);
 
   const contourGenerator = contourDensity<{
     x: number;

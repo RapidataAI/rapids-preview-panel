@@ -1,6 +1,7 @@
 name: Deployment to GHCR
 
 on:
+  workflow_dispatch:
   workflow_call:
     inputs:
       environment:

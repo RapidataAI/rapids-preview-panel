@@ -64,7 +64,7 @@ jobs:
       - name: Create dist zip
         run: |
           mkdir -p rapids-preview
-          cp -r dist/* rapids-preview/
+          mv dist rapids-preview/
           zip -r rapids-preview-v${{ steps.update_version.outputs.new_version }}.zip rapids-preview
           rm -rf rapids-preview
 

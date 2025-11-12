@@ -63,9 +63,10 @@ jobs:
 
       - name: Create dist zip
         run: |
-          cd dist
-          zip -r ../rapids-preview-v${{ steps.update_version.outputs.new_version }}.zip .
-          cd ..
+          mkdir -p rapids-preview
+          cp -r dist/* rapids-preview/
+          zip -r rapids-preview-v${{ steps.update_version.outputs.new_version }}.zip rapids-preview
+          rm -rf rapids-preview
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2

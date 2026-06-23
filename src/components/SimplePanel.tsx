@@ -63,6 +63,11 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
     return rapidIdValues[Math.floor(Math.random() * rapidIdValues.length)];
   }, [rapidIdValues]);
 
+  // Preview a specific rapid when the option is set; otherwise fall back to a
+  // random id from the query.
+  const fixedRapidId = options.rapidId?.trim();
+  const previewRapidId = fixedRapidId || randomRapidId;
+
   if (data.series.length === 0) {
     return <PanelDataErrorView fieldConfig={fieldConfig} panelId={id} data={data} needsStringField />;
   }
@@ -74,7 +79,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
    */
   const [pointsSeries, rapidsSeries] = data.series;
 
-  if (rapidsSeries?.fields[0].values.length === 0) {
+  if (!fixedRapidId && rapidsSeries?.fields[0].values.length === 0) {
     return <PanelDataErrorView fieldConfig={fieldConfig} panelId={id} data={data} suggestions={[]} />;
   }
 
@@ -117,7 +122,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
   const colorScale = scaleLinear().domain([0, maxContourValue]).range([0, 1]);
   const opacityScale = scaleLinear().domain([0, maxContourValue]).range([0, 0.3]);
 
-  const previewSrc = `https://rapids.rapidata.ai/preview/rapid?id=${randomRapidId}${
+  const previewSrc = `https://rapids.rapidata.ai/preview/rapid?id=${previewRapidId}${
     options.rewardModal ? '&rewardOnComplete=true' : ''
   }`;
 

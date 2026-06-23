@@ -117,6 +117,10 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
   const colorScale = scaleLinear().domain([0, maxContourValue]).range([0, 1]);
   const opacityScale = scaleLinear().domain([0, maxContourValue]).range([0, 0.3]);
 
+  const previewSrc = `https://rapids.rapidata.ai/preview/rapid?id=${randomRapidId}${
+    options.rewardModal ? '&rewardOnComplete=true' : ''
+  }`;
+
   const contours = contourData.map((contour, i) => (
     <path
       key={i}
@@ -144,7 +148,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
 
         <iframe
           className={styles.iframe}
-          src={`https://rapids.rapidata.ai/preview/rapid?id=${randomRapidId}`}
+          src={previewSrc}
           onLoad={(e) => {
             if ('contentWindow' in e.target) {
               (e.target.contentWindow as Window).postMessage(

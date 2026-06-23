@@ -2,39 +2,19 @@ import { PanelPlugin } from '@grafana/data';
 import { SimpleOptions } from './types';
 import { SimplePanel } from './components/SimplePanel';
 
-export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOptions((builder) => {
-  return builder
+export const plugin = new PanelPlugin<SimpleOptions>(SimplePanel).setPanelOptions((builder) =>
+  builder
     .addTextInput({
-      path: 'text',
-      name: 'Simple text option',
-      description: 'Description of panel option',
-      defaultValue: 'Default value of text input option',
+      path: 'rapidId',
+      name: 'Rapid id',
+      description: 'Preview this specific rapid id. Leave empty to use a random id from the query.',
+      defaultValue: '',
     })
     .addBooleanSwitch({
-      path: 'showSeriesCount',
-      name: 'Show series counter',
+      path: 'rewardModal',
+      name: 'Render preview with reward modal',
+      description:
+        'Append rewardOnComplete=true to the rapid preview URL so the reward-on-complete modal is shown over the preview.',
       defaultValue: false,
     })
-    .addRadio({
-      path: 'seriesCountSize',
-      defaultValue: 'sm',
-      name: 'Series counter size',
-      settings: {
-        options: [
-          {
-            value: 'sm',
-            label: 'Small',
-          },
-          {
-            value: 'md',
-            label: 'Medium',
-          },
-          {
-            value: 'lg',
-            label: 'Large',
-          },
-        ],
-      },
-      showIf: (config) => config.showSeriesCount,
-    });
-});
+);

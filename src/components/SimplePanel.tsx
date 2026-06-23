@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useMemo } from 'react';
 import { PanelProps } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { css, cx } from '@emotion/css';
@@ -52,6 +52,22 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
   const { dimensions } = useDimensions(svgRef);
   const { width: _width, height: _height } = dimensions;
 
+  // Pick the previewed rapid once per dataset. Computing this in the render body
+  // re-rolls Math.random() on every re-render (e.g. the ResizeObserver firing),
+  // which makes the iframe reload a different rapid each time.
+  const rapidIdValues = data.series[1]?.fields[0]?.values;
+  const randomRapidId = useMemo(() => {
+    if (!rapidIdValues || rapidIdValues.length === 0) {
+      return undefined;
+    }
+    return rapidIdValues[Math.floor(Math.random() * rapidIdValues.length)];
+  }, [rapidIdValues]);
+
+  // Preview a specific rapid when the option is set; otherwise fall back to a
+  // random id from the query.
+  const fixedRapidId = options.rapidId?.trim();
+  const previewRapidId = fixedRapidId || randomRapidId;
+
   if (data.series.length === 0) {
     return <PanelDataErrorView fieldConfig={fieldConfig} panelId={id} data={data} needsStringField />;
   }
@@ -63,7 +79,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
    */
   const [pointsSeries, rapidsSeries] = data.series;
 
-  if (rapidsSeries?.fields[0].values.length === 0) {
+  if (!fixedRapidId && rapidsSeries?.fields[0].values.length === 0) {
     return <PanelDataErrorView fieldConfig={fieldConfig} panelId={id} data={data} suggestions={[]} />;
   }
 
@@ -74,9 +90,6 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
 
   const yScale = scaleLinear().domain([0, 100]).range([0, _height]);
   const xScale = scaleLinear().domain([0, 100]).range([0, _width]);
-
-  const rapidsAmount = rapidsSeries.fields[0].values.length;
-  const randomRapidId = rapidsSeries.fields[0].values[Math.floor(Math.random() * rapidsAmount)];
 
   const p = xPoints.values.map((x, i) => {
     return {
@@ -104,10 +117,14 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
 
   const contourData = contourGenerator(p);
 
-  const maxContourValue = Math.max(...contourData.map((contour) => contour.value));
+  const maxContourValue = contourData.length ? Math.max(...contourData.map((contour) => contour.value)) : 1;
 
   const colorScale = scaleLinear().domain([0, maxContourValue]).range([0, 1]);
   const opacityScale = scaleLinear().domain([0, maxContourValue]).range([0, 0.3]);
+
+  const previewSrc = `https://rapids.rapidata.ai/preview/rapid?id=${previewRapidId}${
+    options.rewardModal ? '&rewardOnComplete=true' : ''
+  }`;
 
   const contours = contourData.map((contour, i) => (
     <path
@@ -136,7 +153,7 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height, fie
 
         <iframe
           className={styles.iframe}
-          src={`https://rapids.rapidata.ai/preview/rapid?id=${randomRapidId}`}
+          src={previewSrc}
           onLoad={(e) => {
             if ('contentWindow' in e.target) {
               (e.target.contentWindow as Window).postMessage(
